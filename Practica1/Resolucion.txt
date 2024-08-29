@@ -1,0 +1,59 @@
+1) 
+    a- V
+    b- V
+    c- V
+2)
+    arreglo a[m]
+    int N
+    int total = 0
+    process contar[id: 0..m]
+      { if a[n]== N
+           <total = total + 1> }
+3) 
+   a) Hay que meter la sentencia que modifica el buffer dentro del await ya que sino el productor puede añadir 1 a cant sin haber agregado el elemento, entonces el consumidor piensa que hay algo para sacar
+   b) Hay que meter todo el bloque en el await ya que sino todos en "buffer[pri_vacia] = elemento" lo van a asignar en el mismo lugar (lo mismo con pri_ocupada)
+4)
+    int cant = 0
+    cola recurso[5]
+    Process Proceso[id: 0..n-1]
+        {
+        int instancia
+        <Await cant<5; cant++;
+        instancia = recurso.desencolar()>
+        //Proceso usa instancia
+        <Recurso.encolar(instancia); cant--
+        }
+5)
+  a)
+      Process[id: 0..n-1]
+          { String documento
+            <imprimir(documento)> }
+  b)
+      Cola c
+      int siguiente = -1
+      Process persona[id: 0..n-1]
+        { int documento
+          <if siguiente == -1:  siguiente = id
+          else c.encolar(id)>
+          <Await siguiente==id>
+          imprimir(documento)
+         <if c.empty(): siguiente = -1
+         else siguiente = c.sacar()>
+
+  c) Lo mismo que en el b) pero asumo que la cola agrega ordenado
+  d)
+      int siguiente= -1
+      bool ocupada = false
+      Cola c
+      Process Persona[id: 0..n-1]
+         { <c.encolar(id)>
+           <Await siguiente == id>
+           imprimir(documento)
+           ocupada = false }
+
+      Process Coordinador
+         { while true{
+             <Await !ocupada && !c.empty()>
+             ocupada = true
+             <siguiente = c.desencolar()> } }
+         
