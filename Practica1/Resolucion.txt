@@ -56,4 +56,35 @@
              <Await !ocupada && !c.empty()>
              ocupada = true
              <siguiente = c.desencolar()> } }
+6) Si cumple
+    -Hay exclusion mutua
+    -No hay deadlock
+    -No hay demora innecesaria
+    -Hay eventual entrada
+7)
+    int N = ..
+    bool enEspera[N]
+    actual = -1
+
+    Process SC[i = 0 to N-1]{
+      while (true){
+        enEspera[i] = true
+        while(actual != i){ skip }
+        // SC 
+        actual = -1
+      }
+
+    }
+
+    Process coordinador{
+      while(true){
+        for (int i = 0; i < N; i++) {
+          if(enEspera[i]){
+            enEspera[i] = false
+            actual = i
+            while(actual == -1) { skip }
+          }
+        }
+      }
+    }
          
