@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-T4WB70F9LM"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-T4WB70F9LM');
+        </script>
+        <meta charset="UTF-8" />
+        <title> Login </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />    
+
+        <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv-printshiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+<![endif]-->
+  
+
+                        <!-- Bootstrap -->
+            <link href="/css/bootstrap.min.css" rel="stylesheet" media="screen">
+            <link href="/css/bootstrap-theme.min.css" rel="stylesheet" media="screen">
+            <link href="/css/bootstrap2-toggle.min.css" rel="stylesheet">
+            <!-- HTML5 Shim and Respond.js add IE8 support of HTML5 elements and media queries -->
+            <link href="/css/styles.css" rel="stylesheet">
+            <link href="/sass/main.css" rel="stylesheet">
+
+            <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+            <link href="/css/Course/unified.css" rel="stylesheet">
+             
+
+                        <link href="/css/alertify.min.css" rel="stylesheet">
+            <link href="/css/alertify.bootstrap.min.css" rel="stylesheet">
+        
+    <link href="/sass/Tool/login.css" rel="stylesheet">
+    
+
+                    <link href="/css/remodal.css" rel="stylesheet"> 
+            <link href="/css/remodal-default-theme.css" rel="stylesheet">
+                
+                        <!-- jQuery (necessary for Bootstraps JavaScript plugins) -->
+            <script src="/js/jquery.js"></script>      
+            <!-- Include all JavaScripts, compiled by Assetic -->
+            <script src="/js/bootstrap.min.js"></script>
+            <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+            <script src="/js/generalFunctions.js"></script>
+            <script src="/js/menu_content_toggle.js"></script>
+            <script src="/js/course_description_toggle.js"></script>
+            <script src="/js/menu_toggle_bar_auto_height.js"></script>
+
+                        <script src="/js/alertify.min.js"></script>
+            <script src="/js/alert_manager.js"></script>
+            <script>
+            function loadNoneSelectedCkeditorAlert(){
+                var ap = new AlertProperties(
+                    'Attach to Glossary&#039;s term',
+                    'There is no text selected. You have to choose at least one character for this action.',
+                    'Accept');
+                var am = new AlertManager();
+                am.showAlertDialog(ap, function() {
+                    //No hace nada mas, simplemente cierra el cartel.
+                });
+            }//End function
+            </script>
+                        
+            <script>
+                let inputHover = false;
+
+                $(document).ready(function() {
+                    $(this).tooltip({
+                        content: $(this).data('help'),
+                        close: function(event, ui)
+                        {
+                            ui.tooltip.hover(function()
+                                {
+                                    $(this).fadeOut('500', function()
+                                    {
+                                        $(this).remove();
+                                    });
+                                },
+                                function()
+                                {
+                                    $(this).fadeOut('500', function()
+                                    {
+                                        $(this).remove();
+                                    });
+                                });
+                        }
+                    });
+                });
+                /*
+                $(document).ready(function(){
+                    $('[data-toggle="tooltip"]').tooltip(); 
+                });*/
+            </script>
+        
+    <script type="text/javascript">
+        let carouselHeight;
+        let boxHeight;
+        const carouseImg = '.carousel-inner img';
+
+        function updateSelectedMenu(element){
+            element.parent().siblings().find('.selected').removeClass('selected');
+            element.addClass('selected');
+        }
+
+        function resizeCarousel(){
+            /*boxHeight = $('#login-form-container').height();
+            carouselHeight = boxHeight * 1.75
+            $(carouseImg).height(carouselHeight);
+            $(carouseImg).width(carouselHeight * 0.99);
+            const altura = $(carouseImg).height()
+            const anchura = $(carouseImg).width()
+            if ((anchura/altura) < 0.98){
+                $(carouseImg).height(altura * (anchura/altura));
+            }*/
+        
+            if($('#loginCarousel').css('display')=='none'){
+                $('#login-form-container').css('height', 'auto');
+            }else{
+                const altura = $('#loginCarousel').find('.item.active').find('img:first').height();
+                $('#login-form-container').css('height', altura-200);
+            }
+            
+        }
+
+        function resizeMarginFooter(){
+            const footerSelector = 'footer';
+            const carouselPosition = $(carouseImg).offset().top;
+            const boxPosition = $('#login-form-container').offset().top;
+            const windowHeight = $(window).height();
+            const ratio = Math.round((carouselHeight / windowHeight) * 100);
+            const footerHeight = $(footerSelector).parent().height();
+            const mobile = $(window).width() < 977;
+
+            let footerPosition;
+            if (ratio > 80 && !mobile){
+                footerPosition = carouselPosition + carouselHeight * 1.1 - footerHeight;
+            } else if (mobile && windowHeight < 600){
+                footerPosition = boxPosition + boxHeight;
+            } else {
+                footerPosition = windowHeight - (footerHeight);
+            }
+
+            //$(footerSelector).offset({top: footerPosition, left: 0});
+        }
+
+        function resizeElements(){
+            resizeCarousel();
+            resizeMarginFooter();
+        }
+
+        $(window).resize(resizeElements);
+
+        $(window).load(function(){
+            resizeElements()
+
+            $( ".login-menu" ).click(function(e) {
+                const element = $(this)
+                e.preventDefault();
+                $.ajax({method: "POST",
+                    url: $(this).attr("href"),
+                })
+                    .success(function(msg) {
+                        $("#principal").hide();
+                        $("#secondary").show();
+                        $("#secondary .title-home").html(msg.title);
+                        $("#secondary .body-home").html(msg.body);
+
+                        const elementId = element.attr('id')
+                        $("#lidiLogoAbout").toggle(elementId === "about")
+                    });
+
+                updateSelectedMenu(element)
+            });
+
+            $( ".home-menu" ).click(function(e) {
+                e.preventDefault();
+                $("#secondary").hide();
+                $("#principal").show();
+                updateSelectedMenu($(this))
+            });
+        })
+    </script>
+
+                    <script src="/js/remodal.js"></script> 
+            <script type="text/javascript">              
+                $( window ).load(function(){
+                    inst = $('[data-remodal-id=modal]').remodal();
+                    $( ".modal-link" ).click(function(e) {
+                        e.preventDefault();
+                        $(".remodal").load($(this).attr("href"), function() {
+                            inst.open();
+                        });
+                    });
+                    $(document).on('closing', '.remodal', function (e) {
+                    	$(".remodal").empty();
+        			});
+
+                    $(document).on('opened', '.remodal', function () {
+                        $( ".modal-glossary" ).click(function(e) {
+                                e.preventDefault();
+                                $(".remodal").load($(this).attr("href"), function() {
+                                    inst.open();
+                                });
+                            }); 
+                    });
+                    
+                })
+            </script>
+        
+                    <script type="text/javascript">              
+                $( window ).load(function(){
+                    $( ".modal-glossary" ).click(function(e) {
+                        e.preventDefault();
+                        $(".remodal").load($(this).attr("href"), function() {
+                            inst.open();
+                        });
+                    });                    
+                })
+            </script>
+        
+    </head>
+    <body>
+                    <div class="container-fluid" >
+            <div class="container-fluid row header-not-responsive">
+            <header id="big">
+                                <div>    
+                    <a href="/home" style="height: 10px; text-decoration: none"><img class="pull-right big_login img-responsive" alt="Logo of IDEAS - Integrando el mundo Digital para Enseñar y Aprender Siempre" title="Logo of IDEAS - Integrando el mundo Digital para Enseñar y Aprender Siempre" src="/images/logoIdeasInicio.png"/></a>
+                </div>
+                                </div>
+            </header>
+        </div>
+                
+        <div class="container-fluid row header-responsive">
+           
+            <header id="big"> 
+                                 <div>    
+                      <a href="/home" style="height: 10px; text-decoration: none"><img class="pull-right big_login img-responsive" alt="Logo of IDEAS - Integrando el mundo Digital para Enseñar y Aprender Siempre" title="Logo of IDEAS - Integrando el mundo Digital para Enseñar y Aprender Siempre" src="/images/logoIdeasInicio.png"/></a>
+                  </div>
+                 
+            </header>  
+        </div>    
+            <div id="header-responsive-menu" class="collapse" >
+                <div id= "div-menu-modal" class="pull-left col-xs-6 col-sm-6 col-md-6">
+                    <div class="row row-responsive"><a data-remodal-target="modal" href="/menu-modal/contact" class="menu-modal-responsive modal-link">Contact</a></div>
+                    <div class="row row-responsive"><a data-remodal-target="modal" href="/menu-modal/help" class="menu-modal-responsive modal-link">Help</a></div>
+                    <div class="row row-responsive"><a data-remodal-target="modal" href="/menu-modal/about" class="menu-modal-responsive modal-link">About</a> </div>
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6">
+                    <div class="row">
+                        <div class="pull-right col-xs-12 col-sm-12 col-md-12 first-row" >
+                                                        <a class="link-personal-bar"  href="/profile/edit"><img src="/images/headerProfile.png" title="Edit profile" alt="Edit profile" class="img-header-circle"></a>
+                            <a class="link-personal-bar"  href="/profile/Notifications"><img src="/images/headerNotification.png" title="Edit notifications" alt="Edit notifications" class="img-header-circle"></a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="pull-right col-xs-12 col-sm-12 col-md-12 second-row" >
+                                                        <a  class="link-personal-bar"  href="/Search/Course"><img src="/images/headerSearch.png" title="Search Course" alt="Search Course" class="img-header-circle"></a>
+                            <a  class="link-personal-bar" href="/logout"><img src="/images/headerLogout.png" title="Logout" alt="Logout" class="img-header-circle"></a> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>            
+        
+                    <div class="container-fluid  login-main-container">
+            <div class="row login-central">
+                <div class="container-fluid">
+                    <div class="row text-right">
+                        <ul class="general-menu">
+                            <li>
+                                <a class="home-menu selected menu" href="/home">
+                                    home
+                                </a>
+                            </li>
+                            <li>
+                                <a class=" menu"href="/register/">
+                                    Register
+                                </a>
+                            </li>
+                            <li>
+                                <a class="login-menu menu" id="about" href="/about">
+                                    About
+                                </a>
+                            </li>
+                            <li>
+                                <a class="login-menu menu" href="/contact">
+                                    Contact
+                                </a>
+                            </li>
+                            <li>
+                                <a class="login-menu menu" href="/help">
+                                    Help
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div id="login-form-container" class="row">
+
+                        
+                        <div class="column-container col-md-6 col-sm-12">
+                            <div id="loginCarousel" class="carousel slide" data-ride="carousel">
+                                <div class="carousel-filter" >
+                                </div>
+
+                                <!-- Indicators -->
+                                <ol class="carousel-indicators">
+                                    <li data-target="#loginCarousel" data-slide-to="0" class="active"></li>
+                                    <li data-target="#loginCarousel" data-slide-to="1"></li>
+                                    <li data-target="#loginCarousel" data-slide-to="2"></li>
+                                    <li data-target="#loginCarousel" data-slide-to="3"></li>
+                                </ol>
+
+                                <!-- Wrapper for slides -->
+                                <div class="carousel-inner" role="listbox">
+                                    <div class="item active">
+                                        <img class="image-login" src="/images/banner1.png" alt="primera imagen de banner"/>
+                                    </div>
+
+                                    <div class="item">
+                                        <img src="/images/banner2.png" alt="segunda imagen de banner">
+                                    </div>
+
+                                    <div class="item">
+                                        <img src="/images/banner3.png" alt="tercera imagen de banner">
+                                    </div>
+
+                                    <div class="item">
+                                        <img src="/images/banner4.png" alt="cuarta imagen de banner">
+                                    </div>
+                                </div>
+
+                                <!-- Left and right controls -->
+                                <a class="left carousel-control" href="#loginCarousel" role="button" data-slide="prev" aria-label="eBundle.general.previousImage">
+                                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                                <a class="right carousel-control" href="#loginCarousel" role="button" data-slide="next" aria-label="eBundle.general.nextImage">
+                                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div id="principal"
+                             class="column-container col-md-6 col-sm-12 login-form">
+                                                            <div id="login-container" class="col-md-6 col-md-offset-5 col-sm-6 col-sm-offset-3">
+    <h3 class="titulo-ingresar col-text-centered"><b>Login</b>  </h3>
+                                    
+
+    <form role="form" action="/login_check" method="post">
+        <input type="hidden" name="_csrf_token" value="nOz7iVIs0LAy77bZbrvf_5P5e3c8gaFPntcgCl-NT24"/>
+
+        <div class="form-group">
+            <input class="form-control" type="text" id="username" name="_username"
+                   value="" required="required" autocapitalize="off" tabindex="1"
+                   placeholder="Username"
+                   aria-label="Username"/>
+        </div>
+
+        <div class="form-group">
+            <input class="form-control" type="password" id="password" name="_password" required="required"
+                   tabindex="2"
+                   placeholder="Password"
+                   aria-label="Password"/>
+        </div>
+
+        
+        <input class="btn btn-block btn-webunlp" type="submit" id="_submit" name="_submit"
+               value="LOGIN"/>
+        
+        <a data-remodal-target="modal" class="retrieve_password btn-block modal-link" href="/resetting/request"> RETRIEVE PASSWORD</a>
+    </form>
+</div>                                                    </div>
+
+                        <div id="secondary" class="column-container col-md-6 col-xs-12 col-sm-6">
+                            <div id="image-home" class="col-md-2">
+                            </div>
+                            <div class="col-md-3">
+                                <img id="lidiLogoAbout" src="/images/lidi-logo.png" alt="Logo del Instituto de Investigación en Informática - LIDI">
+                            </div>
+                            <div id="login-container" class="col-md-6">
+                                <h3 class="title-home text-left"></h3>
+
+                                <div class="body-home">
+
+                                </div>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+            
+    <script src= "https://app.happychat.ai/chat.script.js" data-botid="0e7df9d0-1e68-4ca5-979b-26bc175d498d" data-userid="108137130253416787048"> </script>
+        
+                    <div class="container-fluid">
+        <footer> 
+            <p>
+                Informatics research institute LIDI. Virtual teaching and learning environment. 
+            </p>
+        </footer>
+</div>        
+                    <div class="remodal" data-remodal-id="modal"></div>
+        
+    </body>
+</html>
