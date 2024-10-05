@@ -14,7 +14,7 @@ int ocupado = 0
 int libre = 0
 Sem vacio = P
 Sem lleno = 0
-Sen mutex1 = 1, mutex2 = 0
+Sen mutex1 = 1, mutex2 = 1
 Process Cocineros[id:1..C]{
     while (true){
         plato = preparar()
