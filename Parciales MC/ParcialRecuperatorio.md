@@ -14,24 +14,25 @@ int ocupado = 0
 int libre = 0
 Sem vacio = P
 Sem lleno = 0
+Sen mutex1 = 1, mutex2 = 0
 Process Cocineros[id:1..C]{
     while (true){
         plato = preparar()
         P(vacio) //me fijo que haya lugar
-        P(mutex)
+        P(mutex1)
         platos[libre] = plato
         libre = (libre+1) mod P
-        V(mutex)
+        V(mutex1)
         V(lleno) //asviso que hay plato
     }
 }
 Process Mozos[id:1..M]{
     while (true){
         P(lleno)
-        P(mutex)
+        P(mutex2)
         plato = platos[ocupado]
         ocupado = (ocupado+1) mod P
-        V(mutex)
+        V(mutex2)
         V(vacio)
         repartir(plato)
     }
