@@ -77,6 +77,7 @@ Monitor Fila{
 Monitor Boleteria{
     int e
     cond persona, listo
+    bool hayEntrada = false
     Procedure asignar(entrada: in int){
         e = entrada
         hayEntrada = true
@@ -88,6 +89,7 @@ Monitor Boleteria{
             wait(persona)
         entrada = e
         signal(listo)
+        hayEntrada = false
     }
 }
 ```
