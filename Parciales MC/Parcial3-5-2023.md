@@ -70,6 +70,8 @@ Monitor Fila{
     Procedure siguiente(){
         if(esperando == 0)
             wait(empleado)
+        else
+            esperando--
     }
 }
 Monitor Boleteria{
