@@ -14,25 +14,24 @@ int ocupado = 0
 int libre = 0
 Sem vacio = P
 Sem lleno = 0
-Sen mutex1 = 1, mutex2 = 1
 Process Cocineros[id:1..C]{
     while (true){
         plato = preparar()
         P(vacio) //me fijo que haya lugar
-        P(mutex1)
+        P(mutex)
         platos[libre] = plato
         libre = (libre+1) mod P
-        V(mutex1)
+        V(mutex)
         V(lleno) //asviso que hay plato
     }
 }
 Process Mozos[id:1..M]{
     while (true){
         P(lleno)
-        P(mutex2)
+        P(mutex)
         plato = platos[ocupado]
         ocupado = (ocupado+1) mod P
-        V(mutex2)
+        V(mutex)
         V(vacio)
         repartir(plato)
     }
@@ -45,36 +44,68 @@ estación a la cual debe ir. Cada vehículo se dirige a la estación correspondi
 Una vez que le entregan el comprobante de verificación, el vehículo se retira. Considere que en cada estación
 se atienden a los vehículos de acuerdo con el orden de llegada. Nota: maximizar la concurrencia.
 ```cpp
-//Me dijo el ayudante que es mejor tener un proceso aparte que haga el comprobante xq seria mas correcto semanticamente hablando
-//los monitores no deberian "hacer" algo sino controlar accesos
-Process Vehiculo[id:1..75]{
-    int e
-    fila[e].llegar()
-    estacion[e].obtenerComprobante(comprobante)
-    fila[e].irse()
+process Auto[id:1..75]{
+    int numEs = ...;
+    Fila[numEs].siguiente()
+    Comprobante comprobante 
+    Estacion[numEs].ir(comprobante)
+    Fila[numEs].irse()
 }
-Monitor Fila[id:1..5]{
-    Procedure llegar(){
-        if(!libre){
-            esperando++
-            wait(vehiculo)
-        }
-        else{
-            libre = false
-        }
+process Verificador[id:1..5]{
+    while(true){
+        Estacion[id].siguiente()
+        //Verificar
+        Estacion[id].darComprobante(comprobante)
     }
-    Procedure irse(){
-        if(esperando == 0)
-            libre = true
-        else
-            signal(vehiculo)
+}
+
+monitor Fila[1..5]{
+    bool libre = true
+    cond sig
+    int esperando = 0
+    process siguiente(){
+        if(libre){
+            libre=false
+        } else {
+            esperando++
+            wait(sig)
+        }
     }
 
+    procedure irse(){
+        if(esperando > 0){
+            esperando--
+            signal(sig)
+        } else {
+            libre=true
+        }
+    }
 }
-Monitor Estacion[id:1..5]{
-    Procedure obtenerComprobante(comprobante: out txt){
-        //hacer comprobante
-        comprobante = hacerComprobante()
+
+monitor Estacion[1..5]{
+    bool esperando = false
+    cond despertarVerificador, hayComprobante, meFui
+    Comprobante comprobante 
+
+    procedure siguiente(){
+        if(!esperando){
+            wait(despertarVerificador)
+        }
+    }
+
+    procedure ir(c out Comprobante){
+        esperando = true
+        signal(despertarVerificador)
+        wait(hayComprobante)
+        c = comprobante
+        esperando = false
+        signal(meFui)
+    }
+
+    procedure darComprobante(c in Comprobante){
+        comprobante = c
+        signal(hayComprobante)
+        wait(meFui)
     }
 }
 ```
