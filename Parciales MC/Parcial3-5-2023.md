@@ -72,6 +72,7 @@ Monitor Fila{
             wait(empleado)
         else
             esperando--
+        signal(listo)
     }
 }
 Monitor Boleteria{
