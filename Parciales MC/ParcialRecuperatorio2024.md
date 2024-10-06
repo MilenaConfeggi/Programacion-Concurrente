@@ -7,14 +7,14 @@ deben terminar
 ```cpp
 Sem mutex = 1, despertarEmpleado = 0, terminalLibre = 0, esperar[20] = {[20]0}
 Cola cola
-comprobantes[20]
+int comprobante
 Proces Vehiculo[id:1..20]{
     P(mutex)
     cola.push(id)
     V(mutex)
     V(despertarEmpleado)
     P(esperar[id])
-    c = comprobantes[id]
+    c = comprobante
     V(terminalLibre)
 }
 Process Empleado{
@@ -24,7 +24,7 @@ Process Empleado{
         id = cola.pop()
         V(mutex)
         c = verificar(id)
-        comprobantes[id] = c
+        comprobante = c
         V(esperar[vehiculo])
         P(terminalLibre)
     }
@@ -35,39 +35,70 @@ En una oficina hay un empleado para atender solicitudes de N personas que vienen
 de llegada. Cada persona espera a que el empleado atienda su trámite y le de el resultado. Cuando el empleado está libre atiende
 el sig pedido pendiente y si no hay ninguno lee un libro por 10min. Todos los procesos deben terminar.
 ```cpp
-//debería haber hecho 2 monitores???
-Process Persona[id:1..N]{
-    oficina.llegar(id, r)
-}
-Process Empleado{
+process empleado{
+    int atendidos = 0
     while(atendidos < N){
-        oficina.siguiente(id)
-        if(id == -1)
-            delay(10)
-        else
+        bool hayUno
+        Fila.siguiente(hayUno)
+        if(hayUno){
             atendidos++
-            r = resolverTramite(id)
-            oficina.atender(id, r)
+            Tramite tramite
+            Oficina.atender(tramite)
+            Oficina.darResultado(tramite.resolver())
+        } else {
+            delay(10)
+        }
     }
 }
-Monitor oficina{
-    Cola cola
-    cond persona
-    int resultados[N]
-    Procedure llegar(id: in int, r: out int){
-        cola.push(id)
-        wait(persona)
-        r = resultados[id]
+
+process persona[1..N]{
+    Fila.encolarse()
+    Tramite tramite
+    Oficina.atenderse(tramite)
+}
+monitor Fila{
+    int esperando = 0
+    cond despertarse
+    procedure encolarse(){
+        esperando++
+        wait(despertarse)
     }
-    Procedure siguiente(id: out int){
-        if(cola.empty())
-            id = 1
-        else
-            id = cola.pop()
+
+    procedure siguiente(bool hayUno out){
+        if(esperando == 0){
+            hayUno = false
+        } else {
+            esperando--
+            signal(despertarse)
+            hayUno = true
+        }
     }
-    Procedure atender(id: in int, t: in int){
-        resultados[id] = t
-        signal(persona)
+}
+monitor Oficina{
+    Tramite resultado, tramite
+    cond empleado, hayResultado, fin 
+    bool hayTramite
+
+    procedure atenderse(in t Tramite, out r){
+        tramite = t
+        hayTramite = true
+        signal(empleado)
+        wait(hayResultado)
+        r = resultado
+        signal(fin)
+    }
+    procedure atender(out t Tramite){
+        if(!hayTramite){
+            wait(empleado)
+        }
+        t = tramite
+    }
+
+    procedure darResultado(in r Tramite){
+        resultado = r
+        signal(hayResultado)
+        wait(fin)
+        hayTramite=false
     }
 }
 ```
