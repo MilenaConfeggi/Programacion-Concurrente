@@ -70,8 +70,7 @@ Monitor Fila{
     Procedure siguiente(){
         if(esperando == 0)
             wait(empleado)
-        else
-            esperando--
+        esperando--
         signal(listo)
     }
 }
